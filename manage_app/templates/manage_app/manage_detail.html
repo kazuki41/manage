@@ -1,0 +1,43 @@
+{% extends 'manage_app/base.html' %}
+{% block content %}
+<table class="table_style02">
+  <tr>
+   <th>案件名</th>
+   <td>{{ topick.案件名 }}</td>
+   </tr>
+  <tr>
+   <th>プラン名</th>
+   <td>{{ topick.get_プラン名_display }}</td> 
+  </tr>
+   <tr>
+    <th>デザイナー名</th>
+    <td>{{ topick.get_デザイナー名_display }}</td>
+   </tr>
+   <tr>
+   <th>コーダー名</th>
+   <td>{{ topick.get_コーダー名_display }}</td>
+  </tr>
+  <tr>
+   <th>ディレクター名</th>
+   <td>{{ topick.get_ディレクター名_display }}</td>
+  </tr>
+  <tr>
+   <th>納品月</th>
+   <td>{{ topick.納品月 }}</td>
+  </tr>
+  <tr>
+   <th>開始日</th>
+   <td>{{ topick.開始日 }}</td>
+  </tr>
+  <tr>
+   <th>終了日</th>
+   <td>{{ topick.終了日 }}</td>
+  </tr>
+  <tr>
+   <th>備考</th>
+   <td>{{ topick.備考 }}</td>
+  </tr>
+</table>
+<a href="{% url 'update' topick.id %}">内容を編集する</a>
+<a href="{% url 'delete' topick.id %}">案件を削除する</a>
+{% endblock content %}

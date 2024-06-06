@@ -1,0 +1,9 @@
+{% extends 'manage_app/base.html' %}
+{% block content %}
+<div class="btn_style01"><a href="{% url 'topick' topick.id %}">戻る</a></div>
+<form method="POST">
+ {% csrf_token %}
+ <p class="txt_type01">本当に{{ topick }}を削除しますか？</p>
+ <input type="submit" value="削除する">
+</form>
+{% endblock content %}

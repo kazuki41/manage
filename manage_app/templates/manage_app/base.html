@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>制作案件管理</title>
+   {% load static %}
+   <link rel="stylesheet" href="{% static 'css/base.css' %}">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/frappe-gantt/0.5.0/frappe-gantt.css" />
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/frappe-gantt/0.5.0/frappe-gantt.min.js"></script>
+   <script src="{% static 'js/common.js' %}"></script>
+</head>
+<body>
+   <header id="header">
+      <ul class="h_menu_list">
+      {% if request.user.is_authenticated %}
+         <li>{{ request.user }}</li>
+         <li>
+         <form method="post" action="{% url 'logout' %}">
+         {% csrf_token %}
+         <button type="submit">ログアウト</button>
+         </form>
+         </li>
+      {% else %}
+         <li><a href="{% url 'login' %}">ログイン</a></li>
+      {% endif %}
+         <li><span class="menu_name">案件</span>
+         <ul class="sub_menu">
+            <li><a href="{% url 'topicks' %}">案件一覧</a></li>
+            <li><a href="{% url 'create' %}">新規追加</a></li>
+         </ul>
+         </li>
+         <li><span class="menu_name">デザイナー</span>
+            <ul class="sub_menu">
+               {% for code, name in designer_choices %}
+                  <li><a href="{% url 'person_list' person_type='designer' person_name=code %}">{{ name }}</a></li>
+               {% endfor %}
+            </ul>
+         </li>
+         <li><span class="menu_name">コーダー</span>
+            <ul class="sub_menu">
+               {% for code, name in coder_choices %}
+                  <li><a href="{% url 'person_list' person_type='coder' person_name=code %}">{{ name }}</a></li>
+               {% endfor %}
+            </ul>
+         </li>
+      </ul>
+   </header>
+   <main class="main_cont">
+      {% block content %}
+      {% endblock content %}
+   
+      <script>
+         window.onload = function() {
+  var tasks = [
+  {% for topick in topicks %}
+    {
+      id: '{{ topick.id }}',
+      name: '{{ topick.案件名 }}',
+      start: '{{ topick.開始日|date:"Y-m-d" }}',
+      end: '{{ topick.終了日|date:"Y-m-d" }}',
+      progress: 100,
+    },
+    {% endfor %}
+  ];
+
+  var gantt = new Gantt("#gantt", tasks, {
+    // ダブルクリック時
+    on_click: (task) => {
+      console.log(task.description);
+    },
+    // 日付変更時
+    on_date_change: (task, start, end) => {
+      console.log(`${task.name}: change date`);
+    },
+    // 進捗変更時
+    on_progress_change: (task, progress) => {
+      console.log(`${task.name}: change progress to ${progress}%`);
+    },
+  });
+};
+      </script>
+   </main>
+</body>
+</html>
