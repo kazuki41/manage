@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>制作案件管理</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/frappe-gantt/0.5.0/frappe-gantt.css" />
+</head>
+<body>
+  <header id="header">
+    <ul class="h_menu_list">
+      {% if request.user.is_authenticated %}
+      <li>{{ request.user }}</li>
+      <li>
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit">ログアウト</button>
+        </form>
+      </li>
+      {% else %}
+      <li><a href="{% url 'login' %}">ログイン</a></li>
+      {% endif %}
+      <li><span class="menu_name">案件</span>
+        <ul class="sub_menu">
+          <li><a href="{% url 'topicks' %}">案件一覧</a></li>
+          <li><a href="{% url 'create' %}">新規追加</a></li>
+        </ul>
+      </li>
+      <li><span class="menu_name">デザイナー</span>
+        <ul class="sub_menu">
+          {% for code, name in designer_choices %}
+          <li><a href="{% url 'person_list' person_type='designer' person_name=code %}">{{ name }}</a></li>
+          {% endfor %}
+        </ul>
+      </li>
+      <li><span class="menu_name">コーダー</span>
+        <ul class="sub_menu">
+          {% for code, name in coder_choices %}
+          <li><a href="{% url 'person_list' person_type='coder' person_name=code %}">{{ name }}</a></li>
+          {% endfor %}
+        </ul>
+      </li>
+    </ul>
+  </header>
+  <main class="main_cont">
+    {% block content %}
+    {% endblock content %}
+    <div id="gantt"></div>
+  </main>
+  <footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/frappe-gantt/0.5.0/frappe-gantt.min.js"></script>
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+  var tasks = [
+    {% for topick in topicks %}
+    {
+      id: '{{ topick.id }}',
+      name: '{{ topick.案件名 }}',
+      start: '{{ topick.開始日|date:"Y-m-d" }}',
+      end: '{{ topick.終了日|date:"Y-m-d" }}',
+      progress: 100,
+    },
+    {% endfor %}
+  ];
+
+  var gantt = new Gantt("#gantt", tasks, {
+    view_mode: 'Day',
+    on_click: (task) => { console.log(task.name); },
+    on_date_change: (task, start, end) => { console.log(`${task.name}: changed date from ${start} to ${end}`); },
+    on_progress_change: (task, progress) => { console.log(`${task.name}: changed progress to ${progress}%`); },
+    on_view_change: (mode) => { console.log(`View mode changed to ${mode}`); }
+  });
+
+  // ガントチャートが変更されたときに曜日と月を追加
+  const observer = new MutationObserver((mutations, obs) => {
+    const dateGroup = document.querySelector('.gantt .date');
+    if (dateGroup) {
+      addWeekDaysHeader(gantt);
+      convertMonthsToJapanese(gantt);
+    }
+  });
+
+  observer.observe(document, { childList: true, subtree: true });
+
+  // 日付ラベルに対応する曜日を追加する関数
+  function addWeekDaysHeader(gantt) {
+    // 日付のラベル要素を取得
+    var dateLabels = gantt.$svg.querySelectorAll('.date text');
+    dateLabels.forEach((label) => {
+      var dateText = label.textContent;
+      var date = new Date(dateText);
+      if (isNaN(date.getTime())) {
+        return;
+      }
+      var weekDay = date.toLocaleDateString('ja-JP', { weekday: 'short' });
+      var weekDayLabel = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+      weekDayLabel.setAttribute('dy', 15); // 垂直位置を調整
+      weekDayLabel.setAttribute('x', label.getAttribute('x'));
+      weekDayLabel.textContent = weekDay;
+      label.appendChild(weekDayLabel);
+    });
+  }
+
+  // 月のラベルを日本語に変換する関数
+  function convertMonthsToJapanese(gantt) {
+    const monthMap = {
+      'January': '1月',
+      'February': '2月',
+      'March': '3月',
+      'April': '4月',
+      'May': '5月',
+      'June': '6月',
+      'July': '7月',
+      'August': '8月',
+      'September': '9月',
+      'October': '10月',
+      'November': '11月',
+      'December': '12月'
+    };
+
+    // 月のラベル要素を取得
+    var monthLabels = gantt.$svg.querySelectorAll('.date .upper-text');
+    monthLabels.forEach((label) => {
+      var monthText = label.textContent;
+      if (monthMap[monthText]) {
+        label.textContent = monthMap[monthText];
+      }
+    });
+  }
+});
+
+    </script>
+  </footer>
+</body>
+</html>

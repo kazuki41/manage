@@ -1,0 +1,28 @@
+{% extends 'manage_app/base.html' %}
+{% block content %}
+<h1>案件一覧</h1>
+<table class="table_style01">
+ <thead>
+  <tr>
+   <th>案件名</th>
+   <th>プラン名</th>
+   <th>デザイナー名</th>
+   <th>コーダー名</th>
+   <th>ディレクター名</th>
+   <th>納品月</th>
+  </tr>
+ </thead>
+ <tbody>
+  {% for topick in topicks %}
+   <tr>
+    <td><a href="{% url 'topick' topick.id %}">{{ topick.案件名 }}</a></td>
+    <td>{{ topick.get_プラン名_display }}</td> 
+    <td>{{ topick.get_デザイナー名_display }}</td>
+    <td>{{ topick.get_コーダー名_display }}</td>
+    <td>{{ topick.get_ディレクター名_display }}</td>
+    <td>{{ topick.納品月 }}</td>
+   </tr>
+  {% endfor %}
+ </tbody>
+</table>
+{% endblock content %}
