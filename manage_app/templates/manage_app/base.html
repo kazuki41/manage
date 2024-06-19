@@ -79,29 +79,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (dateGroup) {
       addWeekDaysHeader(gantt);
       convertMonthsToJapanese(gantt);
+      scrollToToday();
     }
   });
 
   observer.observe(document, { childList: true, subtree: true });
-
-  // 日付ラベルに対応する曜日を追加する関数
-  function addWeekDaysHeader(gantt) {
-    // 日付のラベル要素を取得
-    var dateLabels = gantt.$svg.querySelectorAll('.date text');
-    dateLabels.forEach((label) => {
-      var dateText = label.textContent;
-      var date = new Date(dateText);
-      if (isNaN(date.getTime())) {
-        return;
-      }
-      var weekDay = date.toLocaleDateString('ja-JP', { weekday: 'short' });
-      var weekDayLabel = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
-      weekDayLabel.setAttribute('dy', 15); // 垂直位置を調整
-      weekDayLabel.setAttribute('x', label.getAttribute('x'));
-      weekDayLabel.textContent = weekDay;
-      label.appendChild(weekDayLabel);
-    });
-  }
 
   // 月のラベルを日本語に変換する関数
   function convertMonthsToJapanese(gantt) {
@@ -129,6 +111,53 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   }
+
+  // 日付ラベルに対応する曜日を追加する関数
+  function addWeekDaysHeader(gantt) {
+    var dateLabels = gantt.$svg.querySelectorAll('.date .lower-text');
+
+    dateLabels.forEach((label) => {
+      var dateText = label.textContent;
+      var monthLabel = label.parentNode.querySelector('.upper-text');
+
+      if (monthLabel) {
+        var monthText = monthLabel.textContent.replace(/[^\d]/g, '');
+        var dateObj = new Date(new Date().getFullYear(), monthText - 1, dateText);
+        // タイムゾーンを日本に合わせるために日付を調整
+        dateObj.setHours(dateObj.getHours());
+
+        if (isNaN(dateObj.getTime())) {
+          return;
+        }
+
+        var weekDay = dateObj.toLocaleDateString('ja-JP', { weekday: 'short' });
+        var weekDayLabel = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+        weekDayLabel.setAttribute('dy', 15); // 垂直位置を調整
+        weekDayLabel.setAttribute('x', label.getAttribute('x'));
+        weekDayLabel.textContent = weekDay;
+        label.appendChild(weekDayLabel);
+      }
+    });
+  }
+
+  // today-highlight要素にスクロールする関数
+  function scrollToToday() {
+  const todayHighlight = document.querySelector('.today-highlight');
+  //console.log(todayHighlight);
+  if (todayHighlight) {
+    const ganttContainer = document.querySelector('.gantt-container');
+    const scrollLeft = ganttContainer('rect x')
+    //console.log(scrollLeft);
+    setTimeout(() => {
+      // 初期スクロール位置をリセット
+      ganttContainer.scrollLeft = 0;
+      // 計算したスクロール位置を設定
+      ganttContainer.scrollLeft += scrollLeft;
+    }, 100);
+  }
+}
+
+
 });
 
     </script>
