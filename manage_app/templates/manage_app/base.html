@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // today-highlight要素にスクロールする関数
   function scrollToToday() {
   const todayHighlight = document.querySelector('.today-highlight');
-  //console.log(todayHighlight);
+  console.log(todayHighlight);
   if (todayHighlight) {
     const ganttContainer = document.querySelector('.gantt-container');
     const scrollLeft = ganttContainer('rect x')
@@ -156,8 +156,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }, 100);
   }
 }
-
-
 });
 
     </script>
