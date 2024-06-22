@@ -1,0 +1,36 @@
+body{
+ background: #ebebeb;
+ position: relative;
+}
+header{
+position: fixed;
+height: 100vh;
+width: 200px;
+top: 0;
+left: 0;
+}
+main{
+ width: calc(100% - 200px);
+ margin: 0 0 0 auto;
+}
+table{
+ border-spacing: 0;
+}
+.table_style01 th{
+ border: solid #000;
+ border-width: 1px 0 1px 1px;
+ padding: 20px;
+}
+.table_style01 th:last-child{
+ border: solid #000;
+ border-width: 1px 1px 1px 1px;
+}
+.table_style01 td{
+ border: solid #000;
+ border-width: 0 0 1px 1px;
+ padding: 20px;
+}
+.table_style01 td:last-child{
+ border: solid #000;
+ border-width: 0 1px 1px 1px;
+}
