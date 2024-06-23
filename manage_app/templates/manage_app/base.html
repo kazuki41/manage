@@ -68,8 +68,8 @@ document.addEventListener('DOMContentLoaded', function () {
   var gantt = new Gantt("#gantt", tasks, {
     view_mode: 'Day',
     on_click: (task) => { console.log(task.name); },
-    on_date_change: (task, start, end) => { console.log(`${task.name}: changed date from ${start} to ${end}`); },
-    on_progress_change: (task, progress) => { console.log(`${task.name}: changed progress to ${progress}%`); },
+    on_date_change: (task, start, end) => { console.log(`${task.name}: on_date_change ${start} to ${end}`); },
+    on_progress_change: (task, progress) => { console.log(`${task.name}: on_progress_change ${progress}%`); },
     on_view_change: (mode) => { console.log(`View mode changed to ${mode}`); }
   });
 
@@ -116,37 +116,23 @@ document.addEventListener('DOMContentLoaded', function () {
 function addWeekDaysHeader(gantt) {
   var dateLabels = gantt.$svg.querySelectorAll('.date .lower-text');
   var currentDate = new Date(); // 現在の日付を基準とする
-  //console.log(currentDate);
+  currentDate.setHours(0, 0, 0, 0); // 時間をリセットして日付のみを扱う
 
   dateLabels.forEach((label, index) => {
     var dateText = label.textContent;
-    var monthLabel = label.parentNode.querySelector('.upper-text');
 
-    if (monthLabel) {
-      var monthText = monthLabel.textContent.replace(/[^\d]/g, '');
-      
-      // 基準日からの日数を計算して日付オブジェクトを設定
-      var calculatedDate = new Date(currentDate.toLocaleString("en-US", {timeZone: "Asia/Tokyo"}));
-      
-      // タイムゾーンを日本に合わせるために日付を調整
-      calculatedDate.setHours(calculatedDate.getHours() + 48);
+    // 基準日からの日数を計算して日付オブジェクトを設定
+    var calculatedDate = new Date(currentDate);
+    calculatedDate.setDate(currentDate.getDate() + index + 1); // 日数を追加
 
-      if (isNaN(calculatedDate.getTime())) {
-        return;
-      }
-      //console.log(calculatedDate);
+    var weekDay = calculatedDate.toLocaleDateString('ja-JP', { weekday: 'short' });
 
-      var weekDay = calculatedDate.toLocaleDateString('ja-JP', { weekday: 'short' });
-      var weekDayLabel = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
-      weekDayLabel.setAttribute('dy', 15); // 垂直位置を調整
-      weekDayLabel.setAttribute('x', label.getAttribute('x'));
-      weekDayLabel.textContent = weekDay;
-      label.appendChild(weekDayLabel);
+    var weekDayLabel = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+    weekDayLabel.setAttribute('dy', 15); // 垂直位置を調整
+    weekDayLabel.setAttribute('x', label.getAttribute('x'));
+    weekDayLabel.textContent = weekDay;
 
-      // 次の日に進む
-      currentDate.setDate(currentDate.getDate() + 1);
-      //console.log(currentDate);
-    }
+    label.appendChild(weekDayLabel);
   });
 }
 
