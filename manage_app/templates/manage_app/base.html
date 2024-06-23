@@ -68,10 +68,38 @@ document.addEventListener('DOMContentLoaded', function () {
   var gantt = new Gantt("#gantt", tasks, {
     view_mode: 'Day',
     on_click: (task) => { console.log(task.name); },
-    on_date_change: (task, start, end) => { console.log(`${task.name}: on_date_change ${start} to ${end}`); },
+    on_date_change: (task, start, end) => { 
+      console.log(`${task.name}: on_date_change ${start} to ${end}`);
+      saveDateChange(task.id, start, end); // 日付変更を保存
+    },
     on_progress_change: (task, progress) => { console.log(`${task.name}: on_progress_change ${progress}%`); },
     on_view_change: (mode) => { console.log(`View mode changed to ${mode}`); }
   });
+
+
+  // 日付変更を保存する関数
+  function saveDateChange(taskId, start, end) {
+    fetch('{% url "update_task_dates" %}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: JSON.stringify({
+        id: taskId,
+        start: start,
+        end: end
+      })
+    }).then(response => {
+      if (response.ok) {
+        console.log('Date change saved successfully');
+      } else {
+        console.error('Failed to save date change');
+      }
+    }).catch(error => {
+      console.error('Error:', error);
+    });
+  }
 
 // ガントチャートが変更されたときに曜日と月を追加
  const dateGroup = document.querySelector('.gantt .date');
@@ -135,8 +163,6 @@ function addWeekDaysHeader(gantt) {
     label.appendChild(weekDayLabel);
   });
 }
-
-
 
 
 // today-highlight要素にスクロールする関数

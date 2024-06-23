@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from manage_app.views import ManageList, ManageLoginView, ManageCreate, ManageDetail, ManageUpdate, ManageDelete, PersonList
+from manage_app.views import ManageList, ManageLoginView, ManageCreate, ManageDetail, ManageUpdate, ManageDelete, PersonList, updata_task_dates
 from django.contrib.auth.views import LogoutView
 
 urlpatterns = [
@@ -12,4 +12,5 @@ urlpatterns = [
  path("update/<int:pk>/", ManageUpdate.as_view(), name="update"),
  path("delete/<int:pk>/", ManageDelete.as_view(), name="delete"),
  path('<str:person_type>/<str:person_name>/', PersonList.as_view(), name='person_list'),
+ path('update-task-dates/',updata_task_dates, name="update_task_dates"),
 ]

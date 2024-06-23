@@ -3,7 +3,11 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView, D
 from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 from .models import Manage
+import json
 
 # 共通の親クラスを定義
 class ManageBaseView(LoginRequiredMixin):
@@ -78,3 +82,17 @@ class PersonList(ManageBaseView, ListView):
         context['manage_list'] = self.get_queryset()
         return context
     
+def updata_task_dates(request):
+    data = json.loads(request.body)
+    task_id = data.get('id')
+    start_date = data.get('start')
+    end_date = data.get('end')
+
+    try:
+        task = Manage.objects.get(id=task_id)
+        task.開始日 = start_date
+        task.終了日 = end_date
+        task.save()
+        return JsonResponse({'日付を更新しました'})
+    except Manage.DoesNotExist:
+        return JsonResponse({'日付を更新できませんでした'}, status=404)
